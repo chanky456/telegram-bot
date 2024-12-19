@@ -31,8 +31,9 @@ def send_video(query, context: CallbackContext) -> None:
     user_id = query.from_user.id
     user_info = user_data[user_id]
 
-    # Путь к видео (замените на своё)
-    video_path = f"video{user_info['completed'] + 1}.mp4"
+    # Путь к видео
+    video_path = f"/Users/macbook/Desktop/telegram_bot/video{user_info['completed'] + 1}.mp4"
+    print(f"Проверяем отправку видео: {video_path}")  # Отладка
 
     try:
         keyboard = [
@@ -43,10 +44,13 @@ def send_video(query, context: CallbackContext) -> None:
 
         # Отправляем видео
         context.bot.send_video(chat_id=user_id, video=open(video_path, "rb"), caption="Просмотрите видео и выберите реакцию:", reply_markup=reply_markup)
+        print(f"Видео {video_path} успешно отправлено")
     except FileNotFoundError:
+        print(f"Ошибка: Видео {video_path} не найдено")
         query.edit_message_text("Видео не найдено. Обратитесь к администратору.")
     except Exception as e:
         print(f"Ошибка при отправке видео: {e}")
+
 
 # Обработка реакции "Нравится" или "Не нравится"
 def handle_reaction(update: Update, context: CallbackContext) -> None:
