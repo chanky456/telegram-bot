@@ -32,7 +32,7 @@ def send_video(query, context: CallbackContext) -> None:
     user_id = query.from_user.id
     user_info = user_data[user_id]
 
-    video_path = f"video{user_info['completed'] + 1}.mp4"
+video_path = os.path.join(os.getcwd(), f"video{user_info['completed'] + 1}.mp4")
     print(f"Проверяем путь к видео: {video_path}")  # Отладка
 
     if not os.path.exists(video_path):
