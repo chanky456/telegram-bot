@@ -89,17 +89,32 @@ def handle_reaction(update: Update, context: CallbackContext) -> None:
         print(f"Ошибка в handle_reaction: {e}")
 
 # Основная функция
-def main():
-    updater = Updater("7980145475:AAGP1_CfcLErdmK0aIsPOhTOiCAFCpJiqvU")
-    dispatcher = updater.dispatcher
+import os
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
+def main():
+    # Получение токена из переменной окружения
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    updater = Updater(token)
+
+    # Установка диспетчера команд
+    dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(start_action, pattern="^start_action$"))
-    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike)$"))
+    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike|finish)$"))
 
-    print("Бот запущен. Нажмите Ctrl+C для остановки.")
-    updater.start_polling()
+    # Настройка порта и вебхуков
+    port = int(os.environ.get('PORT', 8443))  # Порт по умолчанию 8443
+    webhook_url = f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/webhook"
+
+    updater.start_webhook(
+        listen="0.0.0.0",  # Слушает все входящие подключения
+        port=port,
+        url_path="webhook"  # Вебхук будет доступен по пути /webhook
+    )
+    updater.bot.set_webhook(webhook_url)
+
+    print(f"Бот запущен и использует вебхуки: {webhook_url}")
     updater.idle()
 
-if __name__ == "__main__":
-    main()
