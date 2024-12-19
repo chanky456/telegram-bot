@@ -1,6 +1,6 @@
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
-import os
 
 # Пользовательские данные (вместо базы данных)
 user_data = {}
