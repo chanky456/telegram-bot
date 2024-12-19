@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+import os
 
 # Пользовательские данные (вместо базы данных)
 user_data = {}
@@ -93,19 +94,44 @@ def handle_reaction(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         print(f"Ошибка в handle_reaction: {e}")
 
+# Функция для обработки бонуса
+def claim_bonus(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    bonus_claim_text = ("Хорошая работа! Чтобы получить 1000 рублей:\n\n"
+                        "- Подпишитесь на канал: здесь будет ссылка на наш канал\n"
+                        "- Лайкните 5 последних постов ❤\n"
+                        "- Свяжитесь с владельцем канала и получите свой бонус 1000 рублей \U0001F381\n")
+
+    keyboard = [[InlineKeyboardButton("Подписаться на канал", url="https://t.me/+aWcjTRzCSoU1Mzhi")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    query.edit_message_text(bonus_claim_text, reply_markup=reply_markup)
+
 # Основная функция
 def main():
-    updater = Updater("7980145475:AAGP1_CfcLErdmK0aIsPOhTOiCAFCpJiqvU")
+    token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    updater = Updater(token)
 
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(ready, pattern="^ready$"))
     dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike|finish)$"))
+    dispatcher.add_handler(CallbackQueryHandler(claim_bonus, pattern="^claim_bonus$"))
 
-    print("Бот запущен и готов к работе")
-    updater.start_polling(timeout=5)
-    updater.idle()
+    # Настройка вебхуков
+    port = int(os.environ.get('PORT', 8443))
+    app_name = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
+    webhook_url = f"https://{app_name}/webhook"
+
+    updater.start_webhook(listen="0.0.0.0",
+                          port=port,
+                          url_path="webhook")
+    updater.bot.set_webhook(webhook_url)
+
+    print(f"Бот запущен и использует вебхуки: {webhook_url}")
 
 if __name__ == "__main__":
     main()
