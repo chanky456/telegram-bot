@@ -70,19 +70,21 @@ def handle_reaction(update: Update, context: CallbackContext) -> None:
             user_info["completed"] += 1
             user_data[user_id] = user_info  # Сохраняем обновленные данные
 
-            # Отправляем обновление баланса
+            # Формируем текст для обновления
             balance_text = (f"Ваш баланс изменен с {user_info['balance'] - 10} до {user_info['balance']} руб\n\n"
                             f"✅ Выполнено: {user_info['completed']} из 4\n"
                             f"💰 Ваш баланс: {user_info['balance']} руб")
-            query.edit_message_text(balance_text)
+            
+            # Отправляем новое сообщение вместо редактирования
+            query.message.reply_text(balance_text)
 
             # Проверяем, нужно ли отправить следующее видео
             if user_info["completed"] < 4:
                 send_video(query, context)
             else:
-                query.edit_message_text("Вы выполнили все задания на сегодня. Возвращайтесь завтра!")
+                query.message.reply_text("Вы выполнили все задания на сегодня. Возвращайтесь завтра!")
         elif query.data == "finish":
-            query.edit_message_text("Вы закончили просмотр видео. Спасибо за участие!")
+            query.message.reply_text("Вы закончили просмотр видео. Спасибо за участие!")
     except Exception as e:
         print(f"Ошибка в handle_reaction: {e}")
 
