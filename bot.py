@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
+import os
 
 # Пользовательские данные (вместо базы данных)
 user_data = {}
@@ -27,13 +28,11 @@ def start_action(update: Update, context: CallbackContext) -> None:
     send_video(query, context)
 
 # Функция для отправки видео
-import os
-
 def send_video(query, context: CallbackContext) -> None:
     user_id = query.from_user.id
     user_info = user_data[user_id]
 
-    video_path = f"video{user_info['completed'] + 1}.mp4"
+    video_path = f"/Users/macbook/Desktop/telegram_bot/video{user_info['completed'] + 1}.mp4"
     print(f"Проверяем путь к видео: {video_path}")  # Отладка
 
     if not os.path.exists(video_path):
@@ -54,7 +53,6 @@ def send_video(query, context: CallbackContext) -> None:
         print(f"Видео {video_path} успешно отправлено")
     except Exception as e:
         print(f"Ошибка при отправке видео: {e}")
-
 
 # Обработка реакции "Нравится" или "Не нравится"
 def handle_reaction(update: Update, context: CallbackContext) -> None:
