@@ -59,27 +59,28 @@ video_path = os.path.join(os.getcwd(), f"video{user_info['completed'] + 1}.mp4")
 def handle_reaction(update: Update, context: CallbackContext) -> None:
     try:
         query = update.callback_query
-        print(f"Получен callback_data: {query.data}")  # Отладка
+        print(f"Получен callback_data: {query.data}")  # Лог для отладки
         query.answer()
 
         user_id = query.from_user.id
-        user_info = user_data[user_id]
+        user_info = user_data.get(user_id, {"balance": 0, "completed": 0})
 
         if query.data in ["like", "dislike"]:
             user_info["balance"] += 10
             user_info["completed"] += 1
+            user_data[user_id] = user_info  # Сохраняем обновленные данные
 
+            # Отправляем обновление баланса
             balance_text = (f"Ваш баланс изменен с {user_info['balance'] - 10} до {user_info['balance']} руб\n\n"
                             f"✅ Выполнено: {user_info['completed']} из 4\n"
                             f"💰 Ваш баланс: {user_info['balance']} руб")
-
             query.edit_message_text(balance_text)
 
+            # Проверяем, нужно ли отправить следующее видео
             if user_info["completed"] < 4:
                 send_video(query, context)
             else:
                 query.edit_message_text("Вы выполнили все задания на сегодня. Возвращайтесь завтра!")
-
         elif query.data == "finish":
             query.edit_message_text("Вы закончили просмотр видео. Спасибо за участие!")
     except Exception as e:
