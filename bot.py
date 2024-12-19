@@ -11,7 +11,9 @@ def start(update: Update, context: CallbackContext) -> None:
     user_data[user.id] = {"balance": 0, "completed": 0}
 
     welcome_message = (
-        f"👋 Привет, {user.first_name}!\n\n"
+        f"👋 Привет, {user.first_name}!
+
+"
         "🔥 Добро пожаловать в наш бот. Здесь вы сможете зарабатывать деньги, просматривая контент.\n\n"
         "📱 Нажмите кнопку ниже, чтобы начать!"
     )
@@ -32,7 +34,7 @@ def send_video(query, context: CallbackContext) -> None:
     user_id = query.from_user.id
     user_info = user_data[user_id]
 
-    video_path = f"/Users/macbook/Desktop/telegram_bot/video{user_info['completed'] + 1}.mp4"
+    video_path = f"video{user_info['completed'] + 1}.mp4"
     print(f"Проверяем путь к видео: {video_path}")  # Отладка
 
     if not os.path.exists(video_path):
@@ -91,7 +93,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(start_action, pattern="^start_action$"))
-    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike)$"))
+    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike|finish)$"))
 
     print("Бот запущен. Нажмите Ctrl+C для остановки.")
     updater.start_polling()
