@@ -27,7 +27,7 @@ def start_action(update: Update, context: CallbackContext) -> None:
 
 # Основная функция
 def main():
-    updater = Updater("ВАШ_ТОКЕН_БОТА")  # Вставьте токен вашего бота
+    updater = Updater("7980145475:AAGP1_CfcLErdmK0aIsPOhTOiCAFCpJiqvU")  # Вставьте токен вашего бота
     dispatcher = updater.dispatcher
 
     # Добавляем обработчики
