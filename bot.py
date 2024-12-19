@@ -27,27 +27,31 @@ def start_action(update: Update, context: CallbackContext) -> None:
     send_video(query, context)
 
 # Функция для отправки видео
+import os
+
 def send_video(query, context: CallbackContext) -> None:
     user_id = query.from_user.id
     user_info = user_data[user_id]
 
-    # Путь к видео
-    video_path = f"/Users/macbook/Desktop/telegram_bot/video{user_info['completed'] + 1}.mp4"
-    print(f"Проверяем отправку видео: {video_path}")  # Отладка
+    video_path = f"video{user_info['completed'] + 1}.mp4"
+    print(f"Проверяем путь к видео: {video_path}")  # Отладка
+
+    if not os.path.exists(video_path):
+        print(f"Ошибка: Видео {video_path} не найдено")
+        query.edit_message_text("Видео не найдено. Обратитесь к администратору.")
+        return
 
     try:
         keyboard = [
             [InlineKeyboardButton("Нравится 👍 (10 руб)", callback_data="like"),
              InlineKeyboardButton("Не нравится 👎 (10 руб)", callback_data="dislike")],
+            [InlineKeyboardButton("Закончить просмотр", callback_data="finish")]
         ]
+
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        # Отправляем видео
         context.bot.send_video(chat_id=user_id, video=open(video_path, "rb"), caption="Просмотрите видео и выберите реакцию:", reply_markup=reply_markup)
         print(f"Видео {video_path} успешно отправлено")
-    except FileNotFoundError:
-        print(f"Ошибка: Видео {video_path} не найдено")
-        query.edit_message_text("Видео не найдено. Обратитесь к администратору.")
     except Exception as e:
         print(f"Ошибка при отправке видео: {e}")
 
