@@ -54,29 +54,33 @@ def send_video(query, context: CallbackContext) -> None:
 
 # Обработка реакции "Нравится" или "Не нравится"
 def handle_reaction(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    query.answer()
+    try:
+        query = update.callback_query
+        print(f"Получен callback_data: {query.data}")  # Отладка
+        query.answer()
 
-    user_id = query.from_user.id
-    user_info = user_data[user_id]
+        user_id = query.from_user.id
+        user_info = user_data[user_id]
 
-    # Обновление баланса
-    user_info["balance"] += 10
-    user_info["completed"] += 1
+        if query.data in ["like", "dislike"]:
+            user_info["balance"] += 10
+            user_info["completed"] += 1
 
-    # Сообщение о балансе
-    balance_text = (
-        f"Ваш баланс изменен с {user_info['balance'] - 10} до {user_info['balance']} руб\n\n"
-        f"✅ Выполнено: {user_info['completed']} из 4\n"
-        f"💰 Ваш баланс: {user_info['balance']} руб"
-    )
-    query.edit_message_text(balance_text)
+            balance_text = (f"Ваш баланс изменен с {user_info['balance'] - 10} до {user_info['balance']} руб\n\n"
+                            f"✅ Выполнено: {user_info['completed']} из 4\n"
+                            f"💰 Ваш баланс: {user_info['balance']} руб")
 
-    # Отправка следующего видео или завершение
-    if user_info["completed"] < 4:
-        send_video(query, context)
-    else:
-        query.edit_message_text("Вы выполнили все задания на сегодня. Возвращайтесь завтра!")
+            query.edit_message_text(balance_text)
+
+            if user_info["completed"] < 4:
+                send_video(query, context)
+            else:
+                query.edit_message_text("Вы выполнили все задания на сегодня. Возвращайтесь завтра!")
+
+        elif query.data == "finish":
+            query.edit_message_text("Вы закончили просмотр видео. Спасибо за участие!")
+    except Exception as e:
+        print(f"Ошибка в handle_reaction: {e}")
 
 # Основная функция
 def main():
