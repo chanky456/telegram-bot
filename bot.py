@@ -11,9 +11,7 @@ def start(update: Update, context: CallbackContext) -> None:
     user_data[user.id] = {"balance": 0, "completed": 0}
 
     welcome_message = (
-        f"👋 Привет, {user.first_name}!
-
-"
+        f"👋 Привет, {user.first_name}!\n"
         "🔥 Добро пожаловать в наш бот. Здесь вы сможете зарабатывать деньги, просматривая контент.\n\n"
         "📱 Нажмите кнопку ниже, чтобы начать!"
     )
@@ -43,16 +41,17 @@ def send_video(query, context: CallbackContext) -> None:
         return
 
     try:
-        keyboard = [
-            [InlineKeyboardButton("Нравится 👍 (10 руб)", callback_data="like"),
-             InlineKeyboardButton("Не нравится 👎 (10 руб)", callback_data="dislike")],
-            [InlineKeyboardButton("Закончить просмотр", callback_data="finish")]
-        ]
+        with open(video_path, "rb") as video_file:
+            keyboard = [
+                [InlineKeyboardButton("Нравится 👍 (10 руб)", callback_data="like"),
+                 InlineKeyboardButton("Не нравится 👎 (10 руб)", callback_data="dislike")],
+                [InlineKeyboardButton("Закончить просмотр", callback_data="finish")]
+            ]
 
-        reply_markup = InlineKeyboardMarkup(keyboard)
+            reply_markup = InlineKeyboardMarkup(keyboard)
 
-        context.bot.send_video(chat_id=user_id, video=open(video_path, "rb"), caption="Просмотрите видео и выберите реакцию:", reply_markup=reply_markup)
-        print(f"Видео {video_path} успешно отправлено")
+            context.bot.send_video(chat_id=user_id, video=video_file, caption="Просмотрите видео и выберите реакцию:", reply_markup=reply_markup)
+            print(f"Видео {video_path} успешно отправлено")
     except Exception as e:
         print(f"Ошибка при отправке видео: {e}")
 
@@ -93,7 +92,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(start_action, pattern="^start_action$"))
-    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike|finish)$"))
+    dispatcher.add_handler(CallbackQueryHandler(handle_reaction, pattern="^(like|dislike)$"))
 
     print("Бот запущен. Нажмите Ctrl+C для остановки.")
     updater.start_polling()
