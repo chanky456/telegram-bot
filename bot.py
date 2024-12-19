@@ -112,8 +112,10 @@ def claim_bonus(update: Update, context: CallbackContext) -> None:
 # Основная функция
 def main():
     token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    if not token:
+        raise ValueError("Токен бота не найден. Убедитесь, что переменная TELEGRAM_BOT_TOKEN настроена.")
+    
     updater = Updater(token)
-
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
@@ -123,7 +125,10 @@ def main():
 
     # Настройка вебхуков
     port = int(os.environ.get('PORT', 8443))
-    app_name = os.environ.get('RENDER_EXTERNAL_HOSTNAME', 'localhost')
+    app_name = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if not app_name:
+        raise ValueError("Хост Render не указан. Убедитесь, что RENDER_EXTERNAL_HOSTNAME настроен.")
+
     webhook_url = f"https://{app_name}/webhook"
 
     updater.start_webhook(listen="0.0.0.0",
@@ -132,6 +137,7 @@ def main():
     updater.bot.set_webhook(webhook_url)
 
     print(f"Бот запущен и использует вебхуки: {webhook_url}")
+    updater.idle()
 
 if __name__ == "__main__":
     main()
